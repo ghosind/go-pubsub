@@ -1,3 +1,5 @@
+github.com/ghosind/go-pubsub v0.0.0-20241106144337-a50c7fdb5787 h1:QGjVOpw89DK3eFab0888iz8CyQLDRV7+l7s1mQSYLcU=
+github.com/ghosind/go-pubsub v0.0.0-20241106144337-a50c7fdb5787/go.mod h1:qddTbQsWWdcCOJCtKAuAZy0xxj7Q7lsj77GHUdeR6QE=
 github.com/go-stomp/stomp/v3 v3.1.3 h1:5/wi+bI38O1Qkf2cc7Gjlw7N5beHMWB/BxpX+4p/MGI=
 github.com/go-stomp/stomp/v3 v3.1.3/go.mod h1:ztzZej6T2W4Y6FlD+Tb5n7HQP3/O5UNQiuC169pIp10=
 github.com/golang/mock v1.6.0 h1:ErTB+efbowRARo13NNdxyJji2egdxLGQhRaY+DUumQc=
