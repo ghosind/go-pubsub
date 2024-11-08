@@ -9,6 +9,7 @@ import (
 
 	"github.com/ghosind/go-pubsub"
 	stomp3 "github.com/go-stomp/stomp/v3"
+	"github.com/go-stomp/stomp/v3/frame"
 )
 
 // StompClient is a Pub-Sub client for STOMP protocol.
@@ -61,7 +62,27 @@ func (cli *StompClient) Publish(input *pubsub.PublishInput) error {
 
 // PublishWithContext publishes a message to a queue with a context.
 func (cli *StompClient) PublishWithContext(ctx context.Context, input *pubsub.PublishInput) error {
-	return errors.New("not implemented")
+	opts := cli.makeSendOptions(input)
+
+	err := cli.conn.Send(input.Queue, input.ContentType, input.Body, opts...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cli *StompClient) makeSendOptions(input *pubsub.PublishInput) []func(*frame.Frame) error {
+	opts := make([]func(*frame.Frame) error, 0)
+
+	if input.Persistent {
+		opts = append(opts, stomp3.SendOpt.Header("Persistent", "true"))
+	}
+	if input.MessageID != "" {
+		opts = append(opts, stomp3.SendOpt.Header("message-id", input.MessageID))
+	}
+
+	return opts
 }
 
 // Subscribe subscribes to a queue.
