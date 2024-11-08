@@ -3,8 +3,6 @@ package stomp
 import (
 	"context"
 	"errors"
-	"io"
-	"net"
 	"sync"
 
 	"github.com/ghosind/go-pubsub"
@@ -16,8 +14,6 @@ import (
 type StompClient struct {
 	// conn is the STOMP connection.
 	conn *stomp3.Conn
-
-	netConn io.ReadWriteCloser
 
 	// address is the address of the message broker.
 	address string
@@ -39,12 +35,9 @@ func (cli *StompClient) Connect() error {
 		return nil
 	}
 
-	if err := cli.establishNetConnection(); err != nil {
-		return err
-	}
-
-	conn, err := stomp3.Connect(
-		cli.netConn,
+	conn, err := stomp3.Dial(
+		"tcp",
+		cli.address,
 		stomp3.ConnOpt.Login(cli.username, cli.password),
 	)
 	if err != nil {
@@ -62,9 +55,22 @@ func (cli *StompClient) Publish(input *pubsub.PublishInput) error {
 
 // PublishWithContext publishes a message to a queue with a context.
 func (cli *StompClient) PublishWithContext(ctx context.Context, input *pubsub.PublishInput) error {
-	opts := cli.makeSendOptions(input)
+	cli.connMutex.RLock()
+	defer cli.connMutex.RUnlock()
 
-	err := cli.conn.Send(input.Queue, input.ContentType, input.Body, opts...)
+	if cli.conn == nil {
+		if err := cli.Connect(); err != nil {
+			return err
+		}
+	}
+
+	opts := cli.makeSendOptions(input)
+	contentType := input.ContentType
+	if contentType == "" {
+		contentType = "text/plain"
+	}
+
+	err := cli.conn.Send(input.Queue, contentType, input.Body, opts...)
 	if err != nil {
 		return err
 	}
@@ -112,19 +118,4 @@ func (cli *StompClient) Close() error {
 	}()
 
 	return cli.conn.Disconnect()
-}
-
-func (cli *StompClient) establishNetConnection() error {
-	if cli.netConn != nil {
-		return nil
-	}
-
-	conn, err := net.Dial("tcp", cli.address)
-	if err != nil {
-		return err
-	}
-
-	cli.netConn = conn
-
-	return nil
 }
