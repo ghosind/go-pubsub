@@ -2,7 +2,6 @@ package stomp
 
 import (
 	"context"
-	"errors"
 	"sync"
 
 	"github.com/ghosind/go-pubsub"
@@ -101,7 +100,26 @@ func (cli *StompClient) SubscribeWithContext(
 	ctx context.Context,
 	input *pubsub.SubscribeInput,
 ) (pubsub.Subscription, error) {
-	return nil, errors.New("not implemented")
+	cli.connMutex.RLock()
+	defer cli.connMutex.RUnlock()
+
+	if cli.conn == nil {
+		if err := cli.Connect(); err != nil {
+			return nil, err
+		}
+	}
+
+	ack := stomp3.AckAuto
+	if !input.AutoAck {
+		ack = stomp3.AckClientIndividual
+	}
+
+	sub, err := cli.conn.Subscribe(input.Queue, ack)
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.newSubscription(sub), nil
 }
 
 // Close closes the connection to the message broker.
