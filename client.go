@@ -5,6 +5,8 @@ import "context"
 type Client interface {
 	// Connect connects to the message broker.
 	Connect() error
+	// ConnectWithContext connects to the message broker with a context.
+	ConnectWithContext(context.Context) error
 	// Publish publishes a message to a queue.
 	Publish(*PublishInput) error
 	// PublishWithContext publishes a message to a queue with a context.

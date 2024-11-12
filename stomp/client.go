@@ -27,6 +27,11 @@ type StompClient struct {
 
 // Connect connects to the message broker.
 func (cli *StompClient) Connect() error {
+	return cli.ConnectWithContext(context.Background())
+}
+
+// ConnectWithContext connects to the message broker with a context.
+func (cli *StompClient) ConnectWithContext(ctx context.Context) error {
 	cli.connMutex.Lock()
 	defer cli.connMutex.Unlock()
 
@@ -34,7 +39,8 @@ func (cli *StompClient) Connect() error {
 		return nil
 	}
 
-	conn, err := stomp3.Dial(
+	conn, err := stomp3.DialWithContext(
+		ctx,
 		"tcp",
 		cli.address,
 		stomp3.ConnOpt.Login(cli.username, cli.password),
@@ -58,7 +64,7 @@ func (cli *StompClient) PublishWithContext(ctx context.Context, input *pubsub.Pu
 	defer cli.connMutex.RUnlock()
 
 	if cli.conn == nil {
-		if err := cli.Connect(); err != nil {
+		if err := cli.ConnectWithContext(ctx); err != nil {
 			return err
 		}
 	}
@@ -104,7 +110,7 @@ func (cli *StompClient) SubscribeWithContext(
 	defer cli.connMutex.RUnlock()
 
 	if cli.conn == nil {
-		if err := cli.Connect(); err != nil {
+		if err := cli.ConnectWithContext(ctx); err != nil {
 			return nil, err
 		}
 	}
