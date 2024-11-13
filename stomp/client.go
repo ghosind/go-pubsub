@@ -23,6 +23,8 @@ type StompClient struct {
 
 	// connMutex is the mutex for connection.
 	connMutex *sync.RWMutex
+
+	closeChan chan struct{}
 }
 
 // Connect connects to the message broker.
@@ -132,6 +134,10 @@ func (cli *StompClient) SubscribeWithContext(
 func (cli *StompClient) Close() error {
 	cli.connMutex.Lock()
 	defer cli.connMutex.Unlock()
+
+	defer func() {
+		cli.closeChan <- struct{}{}
+	}()
 
 	if cli.conn == nil {
 		return nil

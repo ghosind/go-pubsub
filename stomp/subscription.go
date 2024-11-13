@@ -12,7 +12,7 @@ type StompSubscription struct {
 
 	msgChan chan pubsub.Message
 
-	closeChan chan bool
+	closeChan chan struct{}
 }
 
 func (cli *StompClient) newSubscription(sub *stomp3.Subscription) *StompSubscription {
@@ -31,7 +31,7 @@ func (sub *StompSubscription) Receive() <-chan pubsub.Message {
 }
 
 func (sub *StompSubscription) Unsubscribe() error {
-	sub.closeChan <- true
+	sub.closeChan <- struct{}{}
 	return sub.subscription.Unsubscribe()
 }
 
@@ -45,6 +45,8 @@ func (sub *StompSubscription) runLoop() {
 
 			sub.msgChan <- newStompMessage(msg)
 		case <-sub.closeChan:
+			return
+		case <-sub.cli.closeChan:
 			return
 		}
 	}
