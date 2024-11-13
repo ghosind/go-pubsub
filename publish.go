@@ -1,8 +1,8 @@
 package pubsub
 
 type PublishInput struct {
-	// Queue is the name of the queue to publish to.
-	Queue string
+	// Destination is the name of the destination to publish to.
+	Destination string
 	// Body is the message body.
 	Body []byte
 	// ContentType is the content type of the message.
@@ -13,9 +13,9 @@ type PublishInput struct {
 	Persistent bool
 }
 
-// SetQueue sets the queue to publish to.
-func (input *PublishInput) SetQueue(queue string) *PublishInput {
-	input.Queue = queue
+// SetDestination sets the destination to publish to.
+func (input *PublishInput) SetDestination(destination string) *PublishInput {
+	input.Destination = destination
 	return input
 }
 

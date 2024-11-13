@@ -14,4 +14,6 @@ type Message interface {
 	Nack() error
 	// Body returns the message body.
 	Body() []byte
+	// MessageID return the ID of the message.
+	MessageID() string
 }

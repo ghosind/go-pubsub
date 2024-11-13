@@ -1,16 +1,16 @@
 package pubsub
 
 type SubscribeInput struct {
-	// Queue is the name of the queue to subscribe to.
-	Queue string
+	// Destination is the name of the destination to subscribe to.
+	Destination string
 	// AutoAck is a flag that indicates whether the subscription should automatically acknowledge
 	// messages.
 	AutoAck bool
 }
 
-// SetQueue sets the queue to subscribe to.
-func (input *SubscribeInput) SetQueue(queue string) *SubscribeInput {
-	input.Queue = queue
+// SetDestination sets the destination to subscribe to.
+func (input *SubscribeInput) SetDestination(destination string) *SubscribeInput {
+	input.Destination = destination
 	return input
 }
 
