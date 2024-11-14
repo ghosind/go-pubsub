@@ -24,6 +24,7 @@ type StompClient struct {
 	// connMutex is the mutex for connection.
 	connMutex *sync.RWMutex
 
+	// closeChan is the channel to notify the client closed.
 	closeChan chan struct{}
 }
 
@@ -77,7 +78,7 @@ func (cli *StompClient) PublishWithContext(ctx context.Context, input *pubsub.Pu
 		contentType = "text/plain"
 	}
 
-	err := cli.conn.Send(input.Queue, contentType, input.Body, opts...)
+	err := cli.conn.Send(input.Destination, contentType, input.Body, opts...)
 	if err != nil {
 		return err
 	}
@@ -85,6 +86,7 @@ func (cli *StompClient) PublishWithContext(ctx context.Context, input *pubsub.Pu
 	return nil
 }
 
+// makeSendOptions makes the options for sending a message.
 func (cli *StompClient) makeSendOptions(input *pubsub.PublishInput) []func(*frame.Frame) error {
 	opts := make([]func(*frame.Frame) error, 0)
 
@@ -122,7 +124,7 @@ func (cli *StompClient) SubscribeWithContext(
 		ack = stomp3.AckClientIndividual
 	}
 
-	sub, err := cli.conn.Subscribe(input.Queue, ack)
+	sub, err := cli.conn.Subscribe(input.Destination, ack)
 	if err != nil {
 		return nil, err
 	}
