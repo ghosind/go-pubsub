@@ -11,6 +11,8 @@ type PublishInput struct {
 	MessageID string
 	// Persistent is a flag that indicates whether the message should be persisted.
 	Persistent bool
+	// Priority is the priority of the message.
+	Priority int
 }
 
 // SetDestination sets the destination to publish to.
@@ -40,5 +42,10 @@ func (input *PublishInput) SetMessageID(messageId string) *PublishInput {
 // SetPersistent sets the flag that indicates whether the message should be persisted.
 func (input *PublishInput) SetPersistent(isPersistent bool) *PublishInput {
 	input.Persistent = isPersistent
+	return input
+}
+
+func (input *PublishInput) SetPriority(priority int) *PublishInput {
+	input.Priority = priority
 	return input
 }
