@@ -51,12 +51,32 @@ func (sub *StompSubscription) runLoop() {
 			if msg == nil {
 				continue
 			}
-
-			sub.msgChan <- newStompMessage(msg)
+			if msg.Err != nil {
+				if !sub.subscription.Active() {
+					sub.reconnect()
+				}
+			} else {
+				sub.msgChan <- newStompMessage(msg)
+			}
 		case <-sub.closeChan:
 			return
 		case <-sub.cli.closeChan:
 			return
 		}
 	}
+}
+
+func (sub *StompSubscription) reconnect() {
+	destination := sub.subscription.Destination()
+	ackMode := sub.subscription.AckMode()
+
+	if err := sub.cli.Connect(); err != nil {
+		panic(err)
+	}
+
+	subscription, err := sub.cli.conn.Subscribe(destination, ackMode)
+	if err != nil {
+		panic(err)
+	}
+	sub.subscription = subscription
 }
