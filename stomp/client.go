@@ -2,6 +2,7 @@ package stomp
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
 	"github.com/ghosind/go-pubsub"
@@ -95,6 +96,9 @@ func (cli *StompClient) makeSendOptions(input *pubsub.PublishInput) []func(*fram
 	}
 	if input.MessageID != "" {
 		opts = append(opts, stomp3.SendOpt.Header("message-id", input.MessageID))
+	}
+	if input.Priority > 0 {
+		opts = append(opts, stomp3.SendOpt.Header("priority", strconv.Itoa(input.Priority)))
 	}
 
 	return opts
